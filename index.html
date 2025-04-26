@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公司颱風假分析系統</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #1e1e2f;
+            color: #fff;
+            font-family: 'Microsoft JhengHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .grid-row {
+            display: flex;
+            margin-top: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            position: relative;
+            background-color: #2b2b3a;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            flex: 1;
+            min-width: 300px;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        select,
+        button,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #3a3a4f;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+
+        }
+
+        button {
+            transition: 0.5s
+        }
+
+        button:hover {
+            background-color: #3a3a4f6a;
+
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul li {
+            margin: 5px 0;
+        }
+
+        .box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>公司颱風假分析系統</h1>
+    <div
+        style="background-color: #fff; border-radius: 50%; position: absolute; top: -50px; right: -50px; height: 150px; width: 150px;">
+        <img src="logo.png" alt="logo" height="70px" width="70px" style="transform: translate(25px,55px);">
+    </div>
+
+    <div class="grid-row">
+        <div class="card">
+            <h3>1. 選擇公司</h3>
+            <select id="companySelect" onchange="updateCompanyInfo()">
+                <option value="">請選擇公司</option>
+
+            </select>
+            <p>公司地址：<span id="companyAddress">請選擇公司</span></p>
+        </div>
+
+        <div class="card">
+            <h3>2. 員工放假狀態</h3>
+            <ul id="employeeList">請選擇公司以載入員工資料</ul>
+        </div>
+
+        <div class="card">
+            <h3>3. 功能操作</h3>
+            <button onclick="startAnalysis()">開始分析</button>
+            <button onclick="partialLeave()">部分放假</button>
+            <button onclick="fullLeave()">全部放假</button>
+        </div>
+    </div>
+
+    <div class="grid-row">
+        <div class="card">
+            <h3>4. 當地風雨量</h3>
+            <p>風量：<span id="wind">--</span> km/h</p>
+            <p>雨量：<span id="rain">--</span> mm</p>
+        </div>
+
+        <div class="card">
+            <h3>5. 區域上班狀態</h3>
+            <ul id="regionStatus">尚未分析</ul>
+        </div>
+    </div>
+
+    <div class="grid-row">
+        <div class="card">
+            <h3>6. AI 回復</h3>
+            <textarea id="aiResponse" rows="6" readonly>尚未分析</textarea>
+        </div>
+
+        <div class="card">
+            <h3>7. 上班比例圓餅圖</h3>
+            <div style="width: 100%; display: flex; justify-content: center;align-items: center;">
+                <div class="" style="height: 70%; width: 70%;">
+                    <canvas id="workPieChart"></canvas>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <script>
+        let company_model
+        let company_name = []
+        let company_addresses = []
+        let company_rain = []
+        let company_wind = []
+        let company_member = []
+
+        let is_off = []
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('https://30kiru8i4i.execute-api.us-west-2.amazonaws.com/get_company', {
+                method: 'GET',   // 如果你的 API 是 GET 方法
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data_json => {
+                    console.log(JSON.parse(data_json['body']))
+                    company_model = JSON.parse(data_json['body'])
+                    console.log(JSON.parse(company_model['result']['content']))
+                    company_model = JSON.parse(company_model['result']['content'])
+                    let index = 0
+                    company_model['company'].forEach(item => {
+                        // 新增下拉是選單公司名稱
+                        index += 1
+                        const select = document.getElementById('companySelect');
+                        const newOption = document.createElement('option');
+                        newOption.value = index;
+                        newOption.text = item['name'];
+                        select.appendChild(newOption);
+
+                        // 下拉式選單公司位址
+                        company_name.push(item['name'])
+                        company_addresses.push(item['address'])
+                        company_rain.push(item['rain'])
+                        company_wind.push(item['wind'])
+                        company_member.push(item['member'])
+                    });
+                })
+        })
+
+
+        const employeeStatus = {};
+
+        function updateCompanyInfo() {
+            const selected = document.getElementById('companySelect').value - 1;
+            const addressText = selected + 1 ? company_addresses[selected] : '請選擇公司';
+            document.getElementById('companyAddress').innerText = addressText;
+
+            const list = document.getElementById('employeeList');
+            list.innerHTML = '';
+            if (selected + 1) {
+                company_member[selected].forEach(emp => {
+                    employeeStatus[emp] = true; // 預設上班
+                    const li = document.createElement('li');
+                    li.textContent = emp + '：上班';
+                    li.id = 'emp-' + emp;
+                    list.appendChild(li);
+                });
+
+                document.getElementById('wind').innerHTML = company_wind[selected]
+                document.getElementById('rain').innerHTML = company_rain[selected]
+            }
+
+        }
+
+        function updatePieChart() {
+            const total = is_off.length
+            let working = 0
+            is_off.forEach((item, index) => {
+                if (item) {
+                    working += 1
+                }
+            })
+
+
+            const onLeave = total - working;
+            const ctx = document.getElementById('workPieChart').getContext('2d');
+
+            workPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['上班', '放假'],
+                    datasets: [{
+                        data: [working, onLeave],
+                        backgroundColor: ['#4bc0c0', '#ff6384']
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            labels: {
+                                font: {
+                                    size: 18 // 🔥這邊調整字體大小（單位是px）
+                                },
+                                padding: 45
+                            }
+                            
+                        }
+                    }
+                }
+            });
+
+
+        }
+
+        function startAnalysis() {
+            // 模擬 AI 回應與分析結果
+            const select = document.getElementById('companySelect');
+            const selected = select.value;
+            if (!(selected)) return alert('請先選擇公司');
+            console.log(select.querySelector(`option[value="${selected}"]`).text)
+            const name = select.querySelector(`option[value="${selected}"]`).text
+
+
+            fetch(`https://id1iaircz5.execute-api.us-west-2.amazonaws.com/get_bedrock?prompt=${name}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data_json => {
+                    res = data_json['ai_reply']
+
+                    // AI回復更新
+                    const firstAt = res.indexOf('@');
+                    const secondAt = res.indexOf('@', firstAt + 1);
+                    const reply = res.substring(firstAt + 1, secondAt).trim();
+
+                    console.log('擷取出來的內容:', reply);
+                    document.getElementById('aiResponse').innerHTML = reply
+
+                    // 員工狀態更新
+                    is_off = data_json['is_off']
+                    const list = document.getElementById('employeeList');
+                    list.innerHTML = '';
+                    if (selected + 1) {
+                        company_member[selected - 1].forEach(emp => {
+                            employeeStatus[emp] = true; // 預設上班
+                            const li = document.createElement('li');
+                            li.textContent = emp + `：${is_off ? '放假  ' : '上班'}`;
+                            li.id = 'emp-' + emp;
+                            list.appendChild(li);
+                        });
+                    }
+                    // 區域狀態更新
+                    const list_region = document.getElementById('regionStatus');
+                    list_region.innerHTML = ''
+                    if (selected + 1) {
+                        company_member[selected - 1].forEach((emp, index) => {
+                            employeeStatus[emp] = true; // 預設上班
+                            const li = document.createElement('li');
+                            li.textContent = company_addresses[index] + `：${is_off ? '放假  ' : '上班'}`;
+                            li.id = 'emp-' + emp;
+                            list_region.appendChild(li);
+                        });
+                    }
+                    updatePieChart()
+                })
+        }
+
+        function partialLeave() {
+            Object.keys(employeeStatus).forEach((emp, i) => {
+                const leave = i % 2 === 0;
+                employeeStatus[emp] = !leave;
+                document.getElementById('emp-' + emp).textContent = emp + '：' + (leave ? '放假' : '上班');
+            });
+            updatePieChart();
+        }
+
+        function fullLeave() {
+            Object.keys(employeeStatus).forEach(emp => {
+                employeeStatus[emp] = false;
+                document.getElementById('emp-' + emp).textContent = emp + '：放假';
+            });
+            updatePieChart();
+        }
+    </script>
+</body>
+
+</html>
