@@ -110,7 +110,7 @@
             <h3>3. 功能操作</h3>
             <button onclick="startAnalysis()">開始分析</button>
             <button onclick="partialLeave()" id="off">部分放假</button>
-            <button onclick="fullLeave()">全部放假</button>
+            <button onclick="fullLeave()" id="off_all">全部放假</button>
         </div>
     </div>
 
@@ -307,7 +307,7 @@
                     }
                     // 區域狀態更新
                     let member_address = []
-                    let is_off_new = []
+                    let is_off_new = is_off
                     const list_region = document.getElementById('regionStatus');
                     company_model['members'].forEach((item) => {
                         for (let i = 0; i < company_member[selected - 1].length; i++) {
@@ -325,6 +325,7 @@
                     })
                     
                     list_region.innerHTML = ''
+                    console.log(`isoffnew= ${is_off_new}`)
                     if (selected + 1) {
                         member_address.forEach((emp, index) => {
                             const li = document.createElement('li');
@@ -358,7 +359,7 @@
         function fullLeave() {
             const select = document.getElementById('companySelect');
             const selected = select.value;
-            const off_button = document.getElementById('off')
+            const off_button = document.getElementById('off_all')
             if (!(selected)) return alert('請先選擇公司');
             const name = select.querySelector(`option[value="${selected}"]`).text
             fetch(`https://56x9bm9jy6.execute-api.us-west-2.amazonaws.com/sent_email_all?prompt=${name}`, {
