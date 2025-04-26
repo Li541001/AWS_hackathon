@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公司颱風假分析系統</title>
+    <link rel="icon" type="image/x-icon" href="logo.png">
+    <title>颱風假分析系統</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -84,7 +85,7 @@
 </head>
 
 <body>
-    <h1>公司颱風假分析系統</h1>
+    <h1>颱風假分析系統</h1>
     <div
         style="background-color: #fff; border-radius: 50%; position: absolute; top: -50px; right: -50px; height: 150px; width: 150px;">
         <img src="logo.png" alt="logo" height="70px" width="70px" style="transform: translate(25px,55px);">
@@ -108,7 +109,7 @@
         <div class="card">
             <h3>3. 功能操作</h3>
             <button onclick="startAnalysis()">開始分析</button>
-            <button onclick="partialLeave()">部分放假</button>
+            <button onclick="partialLeave()" id="off">部分放假</button>
             <button onclick="fullLeave()">全部放假</button>
         </div>
     </div>
@@ -139,8 +140,7 @@
                     <canvas id="workPieChart"></canvas>
                 </div>
             </div>
-
-
+            <div id="value" style='font-size: 20px; font-weight: bolder; width: 100%; text-align: center;'></div>
         </div>
     </div>
 
@@ -178,12 +178,17 @@
                         newOption.text = item['name'];
                         select.appendChild(newOption);
 
+
+
                         // 下拉式選單公司位址
                         company_name.push(item['name'])
                         company_addresses.push(item['address'])
                         company_rain.push(item['rain'])
                         company_wind.push(item['wind'])
                         company_member.push(item['member'])
+
+
+
                     });
                 })
         })
@@ -212,7 +217,7 @@
             }
 
         }
-
+        let workPieChart = null
         function updatePieChart() {
             const total = is_off.length
             let working = 0
@@ -225,11 +230,17 @@
 
             const onLeave = total - working;
             const ctx = document.getElementById('workPieChart').getContext('2d');
+            const value = document.getElementById('value')
+            value.innerHTML = Math.round(onLeave / total * 10000) / 100 + '%'
+
+            if (workPieChart !== null) {
+                workPieChart.destroy();
+            }
 
             workPieChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['上班', '放假'],
+                    labels: ['放假', '上班'],
                     datasets: [{
                         data: [working, onLeave],
                         backgroundColor: ['#4bc0c0', '#ff6384']
@@ -242,9 +253,9 @@
                                 font: {
                                     size: 18 // 🔥這邊調整字體大小（單位是px）
                                 },
-                                padding: 45
+                                padding: 30
                             }
-                            
+
                         }
                     }
                 }
@@ -282,25 +293,42 @@
 
                     // 員工狀態更新
                     is_off = data_json['is_off']
+                    console.log(is_off)
                     const list = document.getElementById('employeeList');
                     list.innerHTML = '';
                     if (selected + 1) {
-                        company_member[selected - 1].forEach(emp => {
+                        company_member[selected - 1].forEach((emp,index) => {
                             employeeStatus[emp] = true; // 預設上班
                             const li = document.createElement('li');
-                            li.textContent = emp + `：${is_off ? '放假  ' : '上班'}`;
+                            li.textContent = emp + `：${is_off[index] ? '放假' : '上班'}`;
                             li.id = 'emp-' + emp;
                             list.appendChild(li);
                         });
                     }
                     // 區域狀態更新
+                    let member_address = []
+                    let is_off_new = []
                     const list_region = document.getElementById('regionStatus');
+                    company_model['members'].forEach((item) => {
+                        for (let i = 0; i < company_member[selected - 1].length; i++) {
+                            if (item['name'] == company_member[selected - 1][i]) {
+                                if(!member_address.includes(item['address']) ){
+                                    member_address.push(item['address'])
+                                }else{
+                                    is_off_new = is_off.filter((_, idx) => idx !== i)
+                                    console.log(`!!!!${is_off_new}  ${item['name']}`)
+                                }
+                                
+                            }
+                        }
+
+                    })
+                    
                     list_region.innerHTML = ''
                     if (selected + 1) {
-                        company_member[selected - 1].forEach((emp, index) => {
-                            employeeStatus[emp] = true; // 預設上班
+                        member_address.forEach((emp, index) => {
                             const li = document.createElement('li');
-                            li.textContent = company_addresses[index] + `：${is_off ? '放假  ' : '上班'}`;
+                            li.textContent = emp + `：${is_off_new[index] ? '放假' : '上班'}`;
                             li.id = 'emp-' + emp;
                             list_region.appendChild(li);
                         });
@@ -310,12 +338,21 @@
         }
 
         function partialLeave() {
-            Object.keys(employeeStatus).forEach((emp, i) => {
-                const leave = i % 2 === 0;
-                employeeStatus[emp] = !leave;
-                document.getElementById('emp-' + emp).textContent = emp + '：' + (leave ? '放假' : '上班');
-            });
-            updatePieChart();
+            const select = document.getElementById('companySelect');
+            const selected = select.value;
+            const off_button = document.getElementById('off')
+            if (!(selected)) return alert('請先選擇公司');
+            const name = select.querySelector(`option[value="${selected}"]`).text
+            fetch(`https://56x9bm9jy6.execute-api.us-west-2.amazonaws.com/sent_email_all?prompt=${name}`, {
+                method: 'GET',   // 如果你的 API 是 GET 方法
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => response.json())
+            .then(data_json => {
+                console.log(data_json)
+                off_button.innerHTML = '傳送完成'
+            })
         }
 
         function fullLeave() {
