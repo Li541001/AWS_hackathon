@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="logo.png">
-    <title>颱風假分析系統</title>
+    <title>企業天然災害彈性放假決策系統</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -85,7 +85,7 @@
 </head>
 
 <body>
-    <h1>颱風假分析系統</h1>
+    <h1>企業天然災害彈性放假決策系統</h1>
     <div
         style="background-color: #fff; border-radius: 50%; position: absolute; top: -50px; right: -50px; height: 150px; width: 150px;">
         <img src="logo.png" alt="logo" height="70px" width="70px" style="transform: translate(25px,55px);">
@@ -343,7 +343,7 @@
             const off_button = document.getElementById('off')
             if (!(selected)) return alert('請先選擇公司');
             const name = select.querySelector(`option[value="${selected}"]`).text
-            fetch(`https://56x9bm9jy6.execute-api.us-west-2.amazonaws.com/sent_email_all?prompt=${name}`, {
+            fetch(`https://v3p56rdng6.execute-api.us-west-2.amazonaws.com/sent_email?prompt=${name}`, {
                 method: 'GET',   // 如果你的 API 是 GET 方法
                 headers: {
                     'Content-Type': 'application/json',
@@ -356,11 +356,21 @@
         }
 
         function fullLeave() {
-            Object.keys(employeeStatus).forEach(emp => {
-                employeeStatus[emp] = false;
-                document.getElementById('emp-' + emp).textContent = emp + '：放假';
-            });
-            updatePieChart();
+            const select = document.getElementById('companySelect');
+            const selected = select.value;
+            const off_button = document.getElementById('off')
+            if (!(selected)) return alert('請先選擇公司');
+            const name = select.querySelector(`option[value="${selected}"]`).text
+            fetch(`https://56x9bm9jy6.execute-api.us-west-2.amazonaws.com/sent_email_all?prompt=${name}`, {
+                method: 'GET',   // 如果你的 API 是 GET 方法
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => response.json())
+            .then(data_json => {
+                console.log(data_json)
+                off_button.innerHTML = '傳送完成'
+            })
         }
     </script>
 </body>
