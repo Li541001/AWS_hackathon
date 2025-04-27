@@ -86,9 +86,10 @@
         .button_member {
             width: 40%;
             margin-left: 50px;
-        
+
         }
-        .temp_box{
+
+        .temp_box {
             width: 100%;
             display: flex;
             align-items: center;
@@ -117,9 +118,9 @@
         </div>
 
         <div class="card">
-            
-            <h3>2. 員工放假狀態</h3>           
-                <ul id="employeeList">請選擇公司以載入員工資料</ul>           
+
+            <h3>2. 員工放假狀態</h3>
+            <ul id="employeeList">請選擇公司以載入員工資料</ul>
         </div>
 
         <div class="card">
@@ -320,7 +321,7 @@
 
                     // AI回復更新
                     const firstAt = res.indexOf('@');
-                    
+
                     const reply = res.substring(0, firstAt).trim();
 
                     console.log('擷取出來的內容:', reply);
@@ -336,7 +337,7 @@
                             employeeStatus[emp] = true; // 預設上班
                             const li = document.createElement('li');
                             const button_member = document.createElement('button')
-                            li.textContent = emp + `: ${is_off[index]? '上班' : '放假'}`;
+                            li.textContent = emp + `: ${is_off[index] ? '上班' : '放假'}`;
                             li.id = emp;
                             li.style.color = '#797979'
                             li.classList = 'temp_box'
@@ -382,8 +383,20 @@
                         });
                     }
                     updatePieChart()
+
+                })
+            fetch(`https://mmlwbdue86.execute-api.us-west-2.amazonaws.com/store_excel`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data_json => {
+                    console.log(data_json)
                 })
         }
+
 
         function partialLeave() {
             const select = document.getElementById('companySelect');
