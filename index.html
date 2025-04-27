@@ -260,7 +260,7 @@
             const onLeave = total - working;
             const ctx = document.getElementById('workPieChart').getContext('2d');
             const value = document.getElementById('value')
-            value.innerHTML = Math.round(onLeave / total * 10000) / 100 + '%'
+            value.innerHTML = Math.round(working / total * 10000) / 100 + '%'
 
             if (workPieChart !== null) {
                 workPieChart.destroy();
