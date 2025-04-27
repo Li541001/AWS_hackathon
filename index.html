@@ -304,12 +304,14 @@
             })
                 .then(response => response.json())
                 .then(data_json => {
-                    res = data_json['ai_reply']
+                    console.log(data_json)
+                    res = data_json['ai_reply'][0]['text']
+                    console.log(res)
 
                     // AI回復更新
                     const firstAt = res.indexOf('@');
-                    const secondAt = res.indexOf('@', firstAt + 1);
-                    const reply = res.substring(firstAt + 1, secondAt).trim();
+                    
+                    const reply = res.substring(0, firstAt).trim();
 
                     console.log('擷取出來的內容:', reply);
                     document.getElementById('aiResponse').innerHTML = reply
