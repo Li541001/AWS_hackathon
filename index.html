@@ -88,13 +88,14 @@
             margin-left: 50px;
         
         }
-        /* .temp_box{
+        .temp_box{
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-direction: column;
-        } */
+            flex-direction: row;
+
+        }
     </style>
 </head>
 
@@ -117,11 +118,8 @@
 
         <div class="card">
             
-            <h3>2. 員工放假狀態</h3>
-            <div class="temp_box">
-                <ul id="employeeList">請選擇公司以載入員工資料</ul>
-            </div>
-            
+            <h3>2. 員工放假狀態</h3>           
+                <ul id="employeeList">請選擇公司以載入員工資料</ul>           
         </div>
 
         <div class="card">
@@ -229,6 +227,7 @@
                     li.textContent = emp + '：上班';
                     li.id = emp;
                     li.style.color = '#797979'
+                    li.classList = 'temp_box'
                     button_member.id = emp + 'button'
                     button_member.classList = 'button_member'
                     button_member.innerHTML = '打卡'
@@ -270,7 +269,7 @@
             workPieChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['放假', '上班'],
+                    labels: ['上班', '放假'],
                     datasets: [{
                         data: [working, onLeave],
                         backgroundColor: ['#4bc0c0', '#ff6384']
@@ -340,6 +339,7 @@
                             li.textContent = emp + `: ${is_off[index]? '上班' : '放假'}`;
                             li.id = emp;
                             li.style.color = '#797979'
+                            li.classList = 'temp_box'
                             button_member.id = emp + 'button'
                             button_member.classList = 'button_member'
                             button_member.innerHTML = '打卡'
