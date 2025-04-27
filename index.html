@@ -82,9 +82,11 @@
             width: 100%;
             height: auto;
         }
-        .button_member{
+
+        .button_member {
             width: 40%;
             margin-left: 50px;
+
         }
     </style>
 </head>
@@ -220,11 +222,11 @@
                     button_member.classList = 'button_member'
                     button_member.innerHTML = '打卡'
                     button_member.disabled = true
-                    button_member.addEventListener('click',()=>{
+                    button_member.addEventListener('click', () => {
                         const lii = document.getElementById(emp)
                         lii.style.color = '#fff'
                     })
-                    
+
                     list.appendChild(li);
                     li.appendChild(button_member);
                 });
@@ -289,7 +291,7 @@
             console.log(select.querySelector(`option[value="${selected}"]`).text)
             const name = select.querySelector(`option[value="${selected}"]`).text
             const button_members = document.querySelectorAll('button_member')
-            button_members.forEach((item,index)=>{
+            button_members.forEach((item, index) => {
                 item.disabled = false
             })
 
@@ -318,12 +320,23 @@
                     const list = document.getElementById('employeeList');
                     list.innerHTML = '';
                     if (selected + 1) {
-                        company_member[selected - 1].forEach((emp,index) => {
+                        company_member[selected - 1].forEach((emp, index) => {
                             employeeStatus[emp] = true; // 預設上班
                             const li = document.createElement('li');
-                            li.textContent = emp + `：${is_off[index] ? '放假' : '上班'}`;
-                            li.id = 'emp-' + emp;
+                            const button_member = document.createElement('button')
+                            li.textContent = emp + `: ${is_off[index]? '上班' : '放假'}`;
+                            li.id = emp;
+                            li.style.color = '#797979'
+                            button_member.id = emp + 'button'
+                            button_member.classList = 'button_member'
+                            button_member.innerHTML = '打卡'
+                            button_member.addEventListener('click', () => {
+                                const lii = document.getElementById(emp)
+                                lii.style.color = '#fff'
+                            })
+
                             list.appendChild(li);
+                            li.appendChild(button_member);
                         });
                     }
                     // 區域狀態更新
@@ -333,18 +346,18 @@
                     company_model['members'].forEach((item) => {
                         for (let i = 0; i < company_member[selected - 1].length; i++) {
                             if (item['name'] == company_member[selected - 1][i]) {
-                                if(!member_address.includes(item['address']) ){
+                                if (!member_address.includes(item['address'])) {
                                     member_address.push(item['address'])
-                                }else{
+                                } else {
                                     is_off_new = is_off.filter((_, idx) => idx !== i)
                                     console.log(`!!!!${is_off_new}  ${item['name']}`)
                                 }
-                                
+
                             }
                         }
 
                     })
-                    
+
                     list_region.innerHTML = ''
                     console.log(`isoffnew= ${is_off_new}`)
                     if (selected + 1) {
@@ -371,10 +384,10 @@
                     'Content-Type': 'application/json',
                 }
             }).then(response => response.json())
-            .then(data_json => {
-                console.log(data_json)
-                off_button.innerHTML = '傳送完成'
-            })
+                .then(data_json => {
+                    console.log(data_json)
+                    off_button.innerHTML = '傳送完成'
+                })
         }
 
         function fullLeave() {
@@ -389,10 +402,10 @@
                     'Content-Type': 'application/json',
                 }
             }).then(response => response.json())
-            .then(data_json => {
-                console.log(data_json)
-                off_button.innerHTML = '傳送完成'
-            })
+                .then(data_json => {
+                    console.log(data_json)
+                    off_button.innerHTML = '傳送完成'
+                })
         }
     </script>
 </body>
