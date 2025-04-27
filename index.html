@@ -86,8 +86,15 @@
         .button_member {
             width: 40%;
             margin-left: 50px;
-
+        
         }
+        /* .temp_box{
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-direction: column;
+        } */
     </style>
 </head>
 
@@ -109,8 +116,12 @@
         </div>
 
         <div class="card">
+            
             <h3>2. 員工放假狀態</h3>
-            <ul id="employeeList">請選擇公司以載入員工資料</ul>
+            <div class="temp_box">
+                <ul id="employeeList">請選擇公司以載入員工資料</ul>
+            </div>
+            
         </div>
 
         <div class="card">
@@ -365,7 +376,7 @@
                     if (selected + 1) {
                         member_address.forEach((emp, index) => {
                             const li = document.createElement('li');
-                            li.textContent = emp + `：${is_off_new[index] ? '放假' : '上班'}`;
+                            li.textContent = emp + `：${is_off_new[index] ? '上班' : '放假'}`;
                             li.id = 'emp-' + emp;
                             list_region.appendChild(li);
                         });
