@@ -59,7 +59,6 @@
 
         button:hover {
             background-color: #3a3a4f6a;
-
         }
 
         ul {
@@ -86,7 +85,6 @@
         .button_member {
             width: 40%;
             margin-left: 50px;
-
         }
 
         .temp_box {
@@ -95,7 +93,6 @@
             align-items: center;
             justify-content: space-between;
             flex-direction: row;
-
         }
     </style>
 </head>
@@ -157,10 +154,10 @@
                     <canvas id="workPieChart"></canvas>
                 </div>
             </div>
-            <div id="value" style='font-size: 20px; font-weight: bolder; width: 100%; text-align: center;'></div>
+            <div id="value"
+                style='font-size: 20px; font-weight: bolder; width: 100%; text-align: center; margin-top: 20px;'></div>
         </div>
     </div>
-
     <script>
         let company_model
         let company_name = []
@@ -168,9 +165,7 @@
         let company_rain = []
         let company_wind = []
         let company_member = []
-
         let is_off = []
-
 
         document.addEventListener('DOMContentLoaded', function () {
             fetch('https://30kiru8i4i.execute-api.us-west-2.amazonaws.com/get_company', {
@@ -195,22 +190,15 @@
                         newOption.text = item['name'];
                         select.appendChild(newOption);
 
-
-
                         // 下拉式選單公司位址
                         company_name.push(item['name'])
                         company_addresses.push(item['address'])
                         company_rain.push(item['rain'])
                         company_wind.push(item['wind'])
                         company_member.push(item['member'])
-
-
-
                     });
                 })
         })
-
-
         const employeeStatus = {};
 
         function updateCompanyInfo() {
@@ -237,15 +225,12 @@
                         const lii = document.getElementById(emp)
                         lii.style.color = '#fff'
                     })
-
                     list.appendChild(li);
                     li.appendChild(button_member);
                 });
-
                 document.getElementById('wind').innerHTML = company_wind[selected]
                 document.getElementById('rain').innerHTML = company_rain[selected]
             }
-
         }
         let workPieChart = null
         function updatePieChart() {
@@ -257,11 +242,10 @@
                 }
             })
 
-
             const onLeave = total - working;
             const ctx = document.getElementById('workPieChart').getContext('2d');
             const value = document.getElementById('value')
-            value.innerHTML = Math.round(working / total * 10000) / 100 + '%'
+            value.innerHTML = '公司上班比例： ' + Math.round(working / total * 10000) / 100 + '%'
 
             if (workPieChart !== null) {
                 workPieChart.destroy();
@@ -285,13 +269,10 @@
                                 },
                                 padding: 30
                             }
-
                         }
                     }
                 }
             });
-
-
         }
 
         function startAnalysis() {
@@ -305,7 +286,6 @@
             button_members.forEach((item, index) => {
                 item.disabled = false
             })
-
 
             fetch(`https://id1iaircz5.execute-api.us-west-2.amazonaws.com/get_bedrock?prompt=${name}`, {
                 method: 'GET',
@@ -321,7 +301,6 @@
 
                     // AI回復更新
                     const firstAt = res.indexOf('@');
-
                     const reply = res.substring(0, firstAt).trim();
 
                     console.log('擷取出來的內容:', reply);
@@ -348,7 +327,6 @@
                                 const lii = document.getElementById(emp)
                                 lii.style.color = '#fff'
                             })
-
                             list.appendChild(li);
                             li.appendChild(button_member);
                         });
@@ -383,8 +361,8 @@
                         });
                     }
                     updatePieChart()
-
                 })
+
             fetch(`https://mmlwbdue86.execute-api.us-west-2.amazonaws.com/store_excel`, {
                 method: 'GET',
                 headers: {
@@ -396,7 +374,6 @@
                     console.log(data_json)
                 })
         }
-
 
         function partialLeave() {
             const select = document.getElementById('companySelect');
