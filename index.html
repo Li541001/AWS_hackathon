@@ -121,7 +121,7 @@
 
     <div class="grid-row">
         <div class="card">
-            <h3>4. 當地風雨量</h3>
+            <h3>4. 公司當地風雨量</h3>
             <p>風量：<span id="wind">--</span> km/h</p>
             <p>雨量：<span id="rain">--</span> mm</p>
         </div>
@@ -219,6 +219,7 @@
                     button_member.id = emp + 'button'
                     button_member.classList = 'button_member'
                     button_member.innerHTML = '打卡'
+                    button_member.disabled = true
                     button_member.addEventListener('click',()=>{
                         const lii = document.getElementById(emp)
                         lii.style.color = '#fff'
@@ -287,6 +288,10 @@
             if (!(selected)) return alert('請先選擇公司');
             console.log(select.querySelector(`option[value="${selected}"]`).text)
             const name = select.querySelector(`option[value="${selected}"]`).text
+            const button_members = document.querySelectorAll('button_member')
+            button_members.forEach((item,index)=>{
+                item.disabled = false
+            })
 
 
             fetch(`https://id1iaircz5.execute-api.us-west-2.amazonaws.com/get_bedrock?prompt=${name}`, {
