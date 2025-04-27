@@ -82,6 +82,10 @@
             width: 100%;
             height: auto;
         }
+        .button_member{
+            width: 40%;
+            margin-left: 50px;
+        }
     </style>
 </head>
 
@@ -208,9 +212,20 @@
                 company_member[selected].forEach(emp => {
                     employeeStatus[emp] = true; // 預設上班
                     const li = document.createElement('li');
+                    const button_member = document.createElement('button')
                     li.textContent = emp + '：上班';
-                    li.id = 'emp-' + emp;
+                    li.id = emp;
+                    li.style.color = '#797979'
+                    button_member.id = emp + 'button'
+                    button_member.classList = 'button_member'
+                    button_member.innerHTML = '打卡'
+                    button_member.addEventListener('click',()=>{
+                        const lii = document.getElementById(emp)
+                        lii.style.color = '#fff'
+                    })
+                    
                     list.appendChild(li);
+                    li.appendChild(button_member);
                 });
 
                 document.getElementById('wind').innerHTML = company_wind[selected]
